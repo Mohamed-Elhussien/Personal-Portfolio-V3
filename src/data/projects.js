@@ -53,7 +53,7 @@ export const projects = [
     image: mohamed,
     tags: ['React', 'Tailwind CSS', 'JavaScript','GSAP'],
     featured: false,
-    liveUrl: 'https://mohamed-elhussien.vercel.app/',
-    githubUrl: 'https://github.com/Mohamed-Elhussien/Mohamed-Elhussien',
+    liveUrl: 'https://mohamed-elhussien-v3.vercel.app/',
+    githubUrl: 'https://github.com/Mohamed-Elhussien/Personal-Portfolio-V3',
   },
 ]
