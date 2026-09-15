@@ -1,0 +1,316 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ─────────────────────────────────────── */
+:root {
+  --color-bg-primary:    #080B14;
+  --color-bg-secondary:  #0D1117;
+  --color-accent:        #8B5CF6;
+  --color-accent-light:  #A78BFA;
+  --color-accent-dim:    rgba(139,92,246,0.15);
+  --color-accent-glow:   rgba(139,92,246,0.35);
+  --color-cyan:          #06B6D4;
+  --color-text-primary:  #F1F5F9;
+  --color-text-secondary:#94A3B8;
+  --color-text-muted:    #475569;
+  --font-sans:           'Inter', system-ui, sans-serif;
+  --font-mono:           'Fira Code', monospace;
+  --radius-sm:   0.5rem;
+  --radius-md:   0.75rem;
+  --radius-lg:   1rem;
+  --radius-xl:   1.5rem;
+  --radius-full: 9999px;
+  --transition-fast:   150ms ease;
+  --transition-base:   300ms ease;
+  --transition-slow:   500ms ease;
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 40px rgba(139,92,246,0.2);
+}
+
+/* ─── Base Reset ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  /*
+    ⚠️ لا تضيف "scroll-behavior: smooth" هنا. GSAP ScrollTrigger بيتحكم في
+    موضع السكرول برمجيًا وبشكل فوري (pin start/end + snap correction)، وده
+    بالظبط اللي كان بيحصل عنده الـ "jump/تعليقة": المتصفح كان بياخد أي
+    تصحيح سكرول برمجي (window.scrollTo) وبيحوّله لأنيميشن smooth خاص بيه،
+    فيتعارض مع الأنيميشن اللي GSAP نفسه بيعمله ويظهر إحساس إنك بتنزل حتة
+    زيادة ثم بترجع تطلع فوق (أو العكس) عند حدود السكشن المُثبّت (أول/آخر
+    project، والدخول/الخروج من قسم Contact). GSAP نفسه بينصح رسميًا بعدم
+    استخدام هذه الخاصية مع ScrollTrigger لنفس السبب.
+    السكرول السموث للـ nav links متغطي أصلاً عن طريق
+    `scrollIntoView({ behavior: 'smooth' })` صريح في Navbar.jsx، وده بيفضل
+    شغال طبيعي وبدون أي تعارض لأنه مش خاصية CSS عامة.
+  */
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.7;
+}
+
+#root { overflow-x: hidden; }
+
+/* ─── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--color-bg-secondary); }
+::-webkit-scrollbar-thumb  { background: var(--color-accent); border-radius: var(--radius-full); }
+
+/* ─── No-scrollbar (mobile swipe track) ─────────────────────
+   بيخفي شريط السكرول بصريًا بس مع الحفاظ على إن السحب/السكرول
+   شغال طبيعي بالصباع — مستخدم في track المشاريع على الموبايل. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── Selection ──────────────────────────────────────────── */
+::selection { background: var(--color-accent-dim); color: var(--color-accent-light); }
+
+/* ─── Tailwind Components ────────────────────────────────── */
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-strong {
+    @apply bg-white/[0.07] backdrop-blur-2xl border border-white/[0.12];
+  }
+  
+    .stat-card {
+    @apply glass rounded-2xl p-6 text-center flex flex-col items-center justify-center relative;
+    transition: opacity 600ms ease-out, transform 600ms ease-out;
+  }
+  .stat-card.in-view {
+    @apply opacity-100 translate-y-0;
+  }
+    .stat-card::before {
+    content: '';
+    @apply absolute inset-0 rounded-2xl opacity-0 transition-all duration-500 ease-out;
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.4);
+    box-shadow: 0 0 30px rgba(139,92,246,0.2);
+    z-index: -1;
+  }
+  .stat-card:hover::before {
+    @apply opacity-100;
+  }
+  .stat-card:hover {
+    @apply border-accent/40;
+    transition: border-color 400ms ease-out;
+  }
+  
+  .section-label {
+    @apply inline-flex items-center gap-2 rounded-full bg-accent-dim px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-accent-light border border-accent/30;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-accent-light to-cyan bg-clip-text text-transparent;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-white transition-all hover:scale-105 relative overflow-hidden;
+    background: linear-gradient(135deg, var(--color-accent), #6D28D9);
+    box-shadow: 0 0 24px var(--color-accent-glow);
+  }
+  .btn-primary::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background: linear-gradient(135deg, #A78BFA, var(--color-cyan));
+  }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary span { @apply relative z-10; }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-white border border-white/20 transition-all hover:bg-white/10 hover:scale-105;
+  }
+  
+  .orb {
+    @apply absolute rounded-full blur-3xl pointer-events-none;
+  }
+  
+  .card {
+    @apply bg-white/[0.04] border border-white/[0.08] rounded-[var(--radius-lg)] transition-all duration-300;
+  }
+  .card:hover {
+    @apply border-[rgba(139,92,246,0.4)] shadow-[0_0_40px_rgba(139,92,246,0.2)] -translate-y-1;
+  }
+  
+  .skill-badge {
+    @apply inline-flex items-center gap-2.5 rounded-[var(--radius-md)] text-sm font-medium bg-white/[0.04] border border-white/[0.08] text-slate-400 transition-all duration-300 cursor-default;
+    padding: 0.6rem 1.1rem;
+  }
+  .skill-badge:hover {
+    @apply bg-accent-dim border-accent text-white -translate-y-0.5 shadow-[0_8px_20px_rgba(139,92,246,0.15)];
+  }
+  
+  .code-window {
+    @apply rounded-[var(--radius-xl)] overflow-hidden text-sm leading-relaxed;
+    background: #0D1117;
+    border: 1px solid rgba(255,255,255,0.08);
+    font-family: var(--font-mono);
+    box-shadow: var(--shadow-card), var(--shadow-glow);
+  }
+  
+  .form-input {
+    @apply w-full rounded-[var(--radius-md)] text-sm outline-none transition-all duration-300;
+    padding: 0.85rem 1.1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+  }
+  .form-input::placeholder { color: var(--color-text-muted); }
+  .form-input:focus {
+    @apply border-accent shadow-[0_0_0_3px_rgba(139,92,246,0.15)];
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.15), 0 0 20px rgba(139,92,246,0.15);
+  }
+  
+  .project-card {
+    @apply relative overflow-hidden rounded-[var(--radius-xl)] bg-white/[0.04] border border-white/[0.08] transition-all duration-300;
+  }
+  .project-card:hover {
+    @apply border-[rgba(139,92,246,0.4)] shadow-[0_0_40px_rgba(139,92,246,0.2)];
+  }
+  
+  .social-link {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/[0.08] text-slate-400 transition-all duration-300;
+  }
+  .social-link:hover {
+    @apply border-accent text-accent-light bg-accent-dim -translate-y-0.5 shadow-[0_8px_20px_rgba(139,92,246,0.15)];
+  }
+  
+  .nav-link {
+    @apply relative text-sm font-medium text-slate-400 no-underline transition-colors duration-300;
+    padding-bottom: 2px;
+  }
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-[-2px] left-0 w-0 h-0.5 rounded-full transition-all duration-300;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-cyan));
+  }
+   @media (hover: hover) and (pointer: fine) {
+    .nav-link:hover { @apply text-white; }
+    .nav-link:hover::after { @apply w-full; }
+  }
+  .nav-link.active { @apply text-accent-light; }
+  .nav-link.active::after { @apply w-full; }
+}
+
+/* ─── Animations ─────────────────────────────────────────── */
+@layer utilities {
+  .animate-blink {
+    animation: blink-green 2s ease infinite;
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-fade-up {
+    animation: fadeInUp 0.7s ease forwards;
+  }
+  .animate-shimmer {
+    animation: shimmer 3s linear infinite;
+  }
+}
+
+@keyframes blink-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-12px) rotate(1deg); }
+  66%       { transform: translateY(-6px) rotate(-1deg); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes growWidth {
+  from { width: 0%; }
+  to   { width: var(--target-width); }
+}
+
+/* ─── Other Utilities ───────────────────────────────────── */
+.section-container {
+  @apply w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.noise::before {
+  content: '';
+  @apply absolute inset-0 pointer-events-none -z-10;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.code-window-bar {
+  @apply flex items-center gap-2 px-4 py-3;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.dot { @apply w-3 h-3 rounded-full; }
+.dot-red    { @apply bg-[#FF5F57]; }
+.dot-yellow { @apply bg-[#FFBD2E]; }
+.dot-green  { @apply bg-[#28CA42]; }
+
+.project-card-overlay {
+  @apply absolute inset-0 transition-all duration-300;
+  background: linear-gradient(to top, rgba(8,11,20,0.95) 0%, rgba(8,11,20,0.5) 60%, transparent 100%);
+}
+
+.progress-bar-fill {
+  animation: growWidth 1.2s ease-out forwards;
+}
+
+.cursor-blink {
+  @apply inline-block w-[3px] h-[1.1em] bg-accent rounded-sm ml-1 align-text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.stat-number {
+  @apply text-[2.2rem] font-extrabold leading-none;
+  background: linear-gradient(135deg, var(--color-accent-light), var(--color-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  @apply text-xs text-slate-500 mt-1 uppercase tracking-widest;
+}
+@layer components {
+  .project-card {
+    @apply relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] transition-all duration-500 ease-out cursor-default;
+  }
+  .project-card:hover {
+    @apply border-accent/40 shadow-[0_0_40px_rgba(139,92,246,0.15)] -translate-y-1;
+  }
+}
+@layer components {
+  .skill-badge {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg;
+  }
+}
